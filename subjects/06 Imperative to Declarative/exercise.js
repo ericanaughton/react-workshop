@@ -4,18 +4,42 @@
 // This Modal, even though its a React component, has an imperative API to
 // open and close it. Can you convert it to a declarative API?
 ////////////////////////////////////////////////////////////////////////////////
-import "bootstrap-webpack";
 
 import React from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 import $ from "jquery";
+import "bootstrap-webpack";
 
 class Modal extends React.Component {
   static propTypes = {
     title: PropTypes.string.isRequired,
     children: PropTypes.node
   };
+
+  doImperativeWork() {
+    $(this.node).modal(this.props.isOpen ? "show" : "hide");
+    // same as...
+    // if (this.props.isOpen) {
+    //   this.open();
+    // } else {
+    //   this.close();
+    // }
+  }
+
+  componentDidMount() {
+    this.doImperativeWork();
+
+    $(this.node).on("hidden.bs.modal", () => {
+      if (this.props.onClose) {
+        this.props.onClose();
+      }
+    });
+  }
+
+  componentDidUpdate() {
+    this.doImperativeWork();
+  }
 
   open() {
     $(this.node).modal("show");
@@ -42,12 +66,19 @@ class Modal extends React.Component {
 }
 
 class App extends React.Component {
+  state = {
+    isOpen: false
+  };
   openModal = () => {
-    this.modal.open();
+    this.setState({
+      isOpen: true
+    });
   };
 
   closeModal = () => {
-    this.modal.close();
+    this.setState({
+      isOpen: false
+    });
   };
 
   render() {
@@ -59,10 +90,7 @@ class App extends React.Component {
           open modal
         </button>
 
-        <Modal
-          title="Declarative is better"
-          ref={modal => (this.modal = modal)}
-        >
+        <Modal isOpen={this.state.isOpen} title="Declarative is better">
           <p>Calling methods on instances is a FLOW not a STOCK!</p>
           <p>
             It’s the dynamic process, not the static program in text
