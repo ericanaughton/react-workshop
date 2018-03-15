@@ -20,24 +20,56 @@ import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
 
 class Form extends React.Component {
+  static propTypes = {
+    onSubmit: PropTypes.func.isRequired
+  };
+  static childContextTypes = {
+    onSubmit: PropTypes.func.isRequired
+  };
+
+  getChildContext() {
+    return {
+      onSubmit: () => {
+        if (this.props.onSubmit) this.props.onSubmit();
+      }
+    };
+  }
   render() {
     return <div>{this.props.children}</div>;
   }
 }
 
 class SubmitButton extends React.Component {
+  static contextTypes = {
+    onSubmit: PropTypes.func
+  };
   render() {
-    return <button>{this.props.children}</button>;
+    return (
+      <button onClick={this.context.onSubmit}>
+        {this.props.children}
+      </button>
+    );
   }
 }
 
 class TextInput extends React.Component {
+  static contextTypes = {
+    onSubmit: PropTypes.func
+  };
+
+  onKeyPress = event => {
+    if (event.key === "Enter") {
+      this.context.onSubmit(event.target.value);
+    }
+  };
+
   render() {
     return (
       <input
         type="text"
         name={this.props.name}
         placeholder={this.props.placeholder}
+        onKeyPress={this.onKeyPress}
       />
     );
   }
