@@ -32,20 +32,47 @@ class RadioGroup extends React.Component {
     defaultValue: PropTypes.string
   };
 
+  state = {
+    activeIndex: null
+    //value: this.props.defaultValue
+  };
+
   render() {
-    return <div>{this.props.children}</div>;
+    const children = React.Children.map(
+      this.props.children,
+      (child, index) => {
+        return React.cloneElement(child, {
+          isSelected: index === this.state.activeIndex,
+          onSelect: () => this.setState({ activeIndex: index })
+        });
+      }
+    );
+    return <div>{children}</div>;
   }
 }
 
 class RadioOption extends React.Component {
   static propTypes = {
-    value: PropTypes.string
+    value: PropTypes.string,
+    isSelected: PropTypes.bool,
+    onSelect: PropTypes.func
+  };
+
+  handleKeyDown = event => {
+    if (event.key === "Enter") {
+      this.props.onSelect();
+    }
   };
 
   render() {
     return (
-      <div>
-        <RadioIcon isSelected={false} /> {this.props.children}
+      <div
+        tabIndex="0"
+        onClick={this.props.onSelect}
+        onKeyDown={this.handleKeyDown}
+      >
+        <RadioIcon isSelected={this.props.isSelected} />{" "}
+        {this.props.children}
       </div>
     );
   }
