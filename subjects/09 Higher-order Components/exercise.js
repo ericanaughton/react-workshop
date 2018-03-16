@@ -16,7 +16,24 @@ import PropTypes from "prop-types";
 import * as styles from "./styles";
 
 const withMouse = Component => {
-  return Component;
+  return class extends React.Component {
+    state = {
+      x: 0,
+      y: 0
+    };
+
+    handleMouseMove = event => {
+      this.setState({ x: event.clientX, y: event.clientY });
+    };
+
+    render() {
+      return (
+        <div onMouseMove={this.handleMouseMove}>
+          <Component mouse={this.state} />
+        </div>
+      );
+    }
+  };
 };
 
 class App extends React.Component {
